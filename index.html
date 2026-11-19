@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>GEX BANK — GitHub + Telegram Edition</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: #070b14;
+      --surface: #0f172a;
+      --surface-2: #162038;
+      --border: rgba(212, 175, 55, 0.24);
+      --gold: #f5c451;
+      --gold-dark: #c99628;
+      --accent: #3b82f6;
+      --gh-bg: #161b22;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 94px;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.94);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: #070b14;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 4px 14px rgba(245, 196, 81, 0.35);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 0.4px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      cursor: pointer;
+    }
+
+    .user-badge img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .container {
+      padding: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Auth Card */
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px 18px;
+      margin-top: 8px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: var(--bg);
+      padding: 5px;
+      border-radius: 14px;
+      margin: 16px 0;
+    }
+
+    .auth-tab {
+      padding: 9px 4px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .auth-tab.active {
+      background: var(--surface-2);
+      color: var(--gold);
+      border: 1px solid var(--border);
+    }
+
+    /* GitHub Preview Card */
+    .gh-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--gh-bg);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+
+    .gh-preview img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+    }
+
+    /* Forms */
+    .field-group {
+      margin-bottom: 13px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .input, .select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 13px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input:focus, .select:focus {
+      border-color: var(--gold);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 14px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s, opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: #070b14;
+      box-shadow: 0 6px 20px rgba(245, 196, 81, 0.25);
+    }
+
+    .btn-gh {
+      background: #21262d;
+      color: #f0f6fc;
+      border: 1px solid rgba(240, 246, 252, 0.2);
+    }
+
+    .btn-outline {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* Virtual Bank Card */
+    .bank-card {
+      background: linear-gradient(135deg, #111c38 0%, #0a1122 55%, #231b0d 100%);
+      border: 1px solid rgba(245, 196, 81, 0.45);
+      border-radius: 22px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-type {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .balance-amount {
+      font-size: 31px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .multi-currency-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .currency-pill {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: #e2e8f0;
+    }
+
+    .card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Quick Actions */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+      margin-bottom: 18px;
+    }
+
+    .quick-item {
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 12px 4px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .quick-item:active {
+      background: var(--surface-2);
+      border-color: var(--gold);
+    }
+
+    .quick-icon {
+      font-size: 21px;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .quick-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    /* Sections */
+    .section-card {
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .link-box {
+      background: #060a12;
+      border: 1px dashed var(--gold);
+      border-radius: 14px;
+      padding: 13px;
+      margin-top: 10px;
+      word-break: break-all;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 13px;
+      color: var(--gold);
+    }
+
+    .link-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .service-card {
+      background: var(--bg);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 15px;
+      padding: 13px;
+      cursor: pointer;
+    }
+
+    .service-card.selected {
+      border-color: var(--gold);
+      background: rgba(245, 196, 81, 0.08);
+    }
+
+    .service-name {
+      font-weight: 700;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .service-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .tx-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .tx-item:last-child { border-bottom: none; }
+    .tx-title { font-size: 13px; font-weight: 600; }
+    .tx-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .tx-amount.minus { color: #f87171; font-weight: 700; font-size: 13px; }
+    .tx-amount.plus { color: var(--success); font-weight: 700; font-size: 13px; }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 8px 4px 14px;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .nav-btn.active { color: var(--gold); }
+    .nav-btn span.ico { font-size: 19px; }
+
+    .toast {
+      position: fixed;
+      top: 68px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--surface-2);
+      border: 1px solid var(--gold);
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s;
+      z-index: 999;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      max-width: 92%;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div id="toast" class="toast">Уведомление</div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo">GB</div>
+      <div>
+        <div class="brand-title">GEX BANK</div>
+        <div class="brand-sub">GitHub × Telegram Ecosystem</div>
+      </div>
+    </div>
+    <div id="headerUserBadge" class="user-badge" onclick="logoutConfirm()">
+      <span id="headerUserText">Гость</span>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- ==================== АВТОРИЗАЦИЯ (GITHUB + TG / BOX BANK / EMAIL) ==================== -->
+    <section id="authSection">
+      <div class="auth-card">
+        <h2 style="font-size: 19px; margin-bottom: 6px;">Вход через GitHub + Telegram</h2>
+        <p style="font-size: 12px; color: var(--muted); line-height: 1.45;">
+          Привяжите аккаунт <b>GitHub</b> и подтвердите вход 6-значным кодом от <b>@gexinside_bot</b> в Telegram.
+        </p>
+
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="switchAuthMethod('gh_tg', this)">🐙 GitHub + TG</button>
+          <button class="auth-tab" onclick="switchAuthMethod('boxbank', this)">📦 Box Bank</button>
+          <button class="auth-tab" onclick="switchAuthMethod('email', this)">✉️ Email PHP</button>
+        </div>
+
+        <!-- Метод 1: GitHub + Telegram (@gexinside_bot) -->
+        <div id="authMethod_gh_tg">
+          <div class="field-group">
+            <label class="field-label">Ваш логин GitHub (Username)</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="ghUsernameInput" class="input" placeholder="Например: Mister100M" onchange="fetchGitHubProfile()" />
+              <button type="button" class="btn btn-gh" style="width: auto; padding: 0 14px;" onclick="fetchGitHubProfile()">Найти</button>
+            </div>
+          </div>
+
+          <!-- Превью найденного GitHub аккаунта -->
+          <div id="ghProfilePreview" class="gh-preview hidden">
+            <img id="ghAvatarImg" src="" alt="GH" />
+            <div style="flex: 1; min-width: 0;">
+              <div id="ghDisplayName" style="font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">GitHub User</div>
+              <div id="ghMetaInfo" style="font-size: 11px; color: var(--muted);">@username • 0 repos</div>
+            </div>
+            <span style="font-size: 11px; color: var(--success); font-weight: 700;">✓ Найден</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Ваш Telegram Chat ID (подставляется автоматически)</label>
+            <input type="text" id="tgChatIdInput" class="input" placeholder="Например: 123456789" />
+          </div>
+
+          <p style="font-size: 11px; color: var(--muted); margin-bottom: 12px;">
+            * Код придет в Telegram от <b>@gexinside_bot</b> (убедитесь, что нажали <b>/start</b> в боте).
+          </p>
+        </div>
+
+        <!-- Метод 2: Box Bank + TG -->
+        <div id="authMethod_boxbank" class="hidden">
+          <div class="field-group">
+            <label class="field-label">Почта аккаунта Box Bank</label>
+            <input type="email" id="boxBankEmailInput" class="input" placeholder="client@boxbank.ru" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Telegram ID для получения кода от @gexinside_bot</label>
+            <input type="text" id="boxBankTgIdInput" class="input" placeholder="Ваш Telegram ID" />
+          </div>
+        </div>
+
+        <!-- Метод 3: Email PHP (send_code.php) -->
+        <div id="authMethod_email" class="hidden">
+          <div class="field-group">
+            <label class="field-label">Электронная почта (отправка через send_code.php)</label>
+            <input type="email" id="directEmailInput" class="input" placeholder="name@example.com" />
+          </div>
+        </div>
+
+        <button id="sendCodeBtn" class="btn btn-gold" onclick="requestVerificationCode()">
+          Получить код в Telegram
+        </button>
+
+        <!-- Подтверждение кода -->
+        <div id="verifyCodeBox" class="hidden" style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
+          <div class="field-group">
+            <label class="field-label">Введите 6-значный код от @gexinside_bot</label>
+            <input type="number" id="otpCodeInput" class="input" placeholder="••••••" style="letter-spacing: 6px; font-weight: 800; text-align: center; font-size: 20px;" />
+          </div>
+          <button class="btn btn-gold" onclick="confirmVerificationCode()">
+            Подтвердить и войти
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ОСНОВНОЕ ПРИЛОЖЕНИЕ ==================== -->
+    <main id="appSection" class="hidden">
+
+      <!-- ВКЛАДКА 1: ГЛАВНАЯ -->
+      <div id="tab_home" class="tab-view">
+        <div class="bank-card">
+          <div class="card-top">
+            <span class="card-type">GEX DEV BLACK • GITHUB PRO</span>
+            <span id="cardGhBadge" style="font-size: 11px; color: var(--gold); font-weight: 700;">TG VERIFIED</span>
+          </div>
+          <div class="balance-amount" id="mainBalanceDisplay">125 450.00 ₽</div>
+          <div class="multi-currency-row">
+            <span class="currency-pill" id="eurBalanceDisplay">€ 1 218.00</span>
+            <span class="currency-pill" id="usdBalanceDisplay">$ 1 320.50</span>
+            <span class="currency-pill" id="kztBalanceDisplay">₸ 645 000</span>
+          </div>
+          <div class="card-bottom">
+            <span id="cardNumberDisplay">2200 77•• •••• 4819</span>
+            <span id="cardHolderDisplay">TIMOFEI TITOV</span>
+          </div>
+        </div>
+
+        <div class="quick-grid">
+          <div class="quick-item" onclick="switchTab('links', document.querySelectorAll('.nav-btn')[1])">
+            <span class="quick-icon">🔗</span>
+            <span class="quick-label">Ссылка банка</span>
+          </div>
+          <div class="quick-item" onclick="switchTab('intl', document.querySelectorAll('.nav-btn')[2])">
+            <span class="quick-icon">🌍</span>
+            <span class="quick-label">Страны</span>
+          </div>
+          <div class="quick-item" onclick="switchTab('services', document.querySelectorAll('.nav-btn')[3])">
+            <span class="quick-icon">⚡</span>
+            <span class="quick-label">Сервисы</span>
+          </div>
+          <div class="quick-item" onclick="switchTab('github', document.querySelectorAll('.nav-btn')[4])">
+            <span class="quick-icon">🐙</span>
+            <span class="quick-label">GitHub</span>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-title">
+            <span>История операций</span>
+            <span style="font-size: 12px; color: var(--gold); cursor: pointer;" onclick="topUpDemo()">+ Пополнить</span>
+          </div>
+          <div id="txHistoryList"></div>
+        </div>
+      </div>
+
+      <!-- ВКЛАДКА 2: УНИКАЛЬНЫЕ ССЫЛКИ ДЛЯ КАЖДОГО БАНКА -->
+      <div id="tab_links" class="tab-view hidden">
+        <div class="section-card">
+          <div class="section-title">🔗 Уникальная ссылка для каждого банка</div>
+          <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+            Формирует прямую ссылку оплаты в формате <b>банк/телефон/валюта=сумма/</b>.
+          </p>
+
+          <div class="field-group">
+            <label class="field-label">Банк</label>
+            <select id="linkBankSelect" class="select" onchange="generateBankDeepLink()">
+              <option value="sberbank">Сбербанк (sberbank)</option>
+              <option value="tbank">Т-Банк (tbank)</option>
+              <option value="alfabank">Альфа-Банк (alfabank)</option>
+              <option value="vtb">ВТБ (vtb)</option>
+              <option value="ozon">Ozon Банк (ozon)</option>
+              <option value="gexbank">GEX BANK (gexbank)</option>
+              <option value="boxbank">Box Bank (boxbank)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Номер телефона</label>
+            <input type="tel" id="linkPhoneInput" class="input" value="+76676767677" oninput="generateBankDeepLink()" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Сумма и валюта</label>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+              <input type="number" id="linkAmountInput" class="input" value="300" oninput="generateBankDeepLink()" />
+              <select id="linkCurrencyInput" class="select" onchange="generateBankDeepLink()">
+                <option value="rub">RUB</option>
+                <option value="eur">EUR</option>
+                <option value="usd">USD</option>
+                <option value="kzt">KZT</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="field-label">Сгенерированная ссылка:</label>
+          <div id="generatedLinkOutput" class="link-box">sberbank/+76676767677/rub=300/</div>
+
+          <div class="link-actions">
+            <button class="btn btn-gold" onclick="copyGeneratedLink()">📋 Копировать</button>
+            <button class="btn btn-outline" onclick="shareGeneratedLink()">✈️ В Telegram</button>
+          </div>
+          <button class="btn btn-outline" style="margin-top: 8px;" onclick="executeLinkPayment()">
+            💸 Оплатить по этой ссылке
+          </button>
+        </div>
+      </div>
+
+      <!-- ВКЛАДКА 3: ПЕРЕВОДЫ МЕЖДУ СТРАНАМИ -->
+      <div id="tab_intl" class="tab-view hidden">
+        <div class="section-card">
+          <div class="section-title">🌍 Переводы между странами</div>
+
+          <div class="field-group">
+            <label class="field-label">Страна и валюта зачисления</label>
+            <select id="intlCountrySelect" class="select" onchange="updateIntlCalculation()">
+              <option value="DE" data-curr="EUR" data-rate="103.0">🇩🇪 Германия / ЕС (IBAN • EUR)</option>
+              <option value="KZ" data-curr="KZT" data-rate="0.194">🇰🇿 Казахстан (Kaspi / Halyk • KZT)</option>
+              <option value="AE" data-curr="AED" data-rate="25.85">🇦🇪 ОАЭ (AED)</option>
+              <option value="US" data-curr="USD" data-rate="95.0">🇺🇸 США (SWIFT • USD)</option>
+              <option value="TR" data-curr="TRY" data-rate="2.78">🇹🇷 Турция (TRY)</option>
+              <option value="BY" data-curr="BYN" data-rate="29.1">🇧🇾 Беларусь (BYN)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Реквизиты получателя (IBAN / Карта / Телефон)</label>
+            <input type="text" id="intlRecipientInput" class="input" placeholder="DE89 3704 0044 0532 0130 00" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Сумма списания (RUB)</label>
+            <input type="number" id="intlRubAmount" class="input" value="10300" oninput="updateIntlCalculation()" />
+          </div>
+
+          <div style="background: var(--bg); padding: 13px; border-radius: 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.06);">
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+              <span style="color: var(--muted);">Получатель зачислит:</span>
+              <strong id="intlConvertedResult" style="color: var(--gold); font-size: 16px;">100.00 EUR</strong>
+            </div>
+          </div>
+
+          <button class="btn btn-gold" onclick="submitIntlTransfer()">
+            Отправить перевод за рубеж
+          </button>
+        </div>
+      </div>
+
+      <!-- ВКЛАДКА 4: ОПЛАТА СЕРВИСОВ -->
+      <div id="tab_services" class="tab-view hidden">
+        <div class="section-card">
+          <div class="section-title">⚡ Оплата сервисов</div>
+
+          <div class="services-grid">
+            <div class="service-card selected" onclick="selectService('Telegram Premium', 299, this)">
+              <div style="font-size: 20px;">✈️</div>
+              <div class="service-name">Telegram Premium</div>
+              <div class="service-desc">Подписка • 299 ₽</div>
+            </div>
+            <div class="service-card" onclick="selectService('GitHub Copilot Pro', 950, this)">
+              <div style="font-size: 20px;">🐙</div>
+              <div class="service-name">GitHub Copilot Pro</div>
+              <div class="service-desc">Подписка 1 мес • 950 ₽</div>
+            </div>
+            <div class="service-card" onclick="selectService('Steam Пополнение', 1000, this)">
+              <div style="font-size: 20px;">🎮</div>
+              <div class="service-name">Steam</div>
+              <div class="service-desc">По логину • 1000 ₽</div>
+            </div>
+            <div class="service-card" onclick="selectService('Apple ID / App Store', 1500, this)">
+              <div style="font-size: 20px;"></div>
+              <div class="service-name">Apple ID</div>
+              <div class="service-desc">Подарочный код • 1500 ₽</div>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-top: 13px;">
+            <label class="field-label">Аккаунт / @username / GitHub логин</label>
+            <input type="text" id="serviceAccountInput" class="input" placeholder="@scripttim" />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Сумма (₽)</label>
+            <input type="number" id="serviceAmountInput" class="input" value="299" />
+          </div>
+
+          <button class="btn btn-gold" onclick="payService()">
+            Оплатить сервис
+          </button>
+        </div>
+      </div>
+
+      <!-- ВКЛАДКА 5: GITHUB + TELEGRAM ИНТЕГРАЦИЯ И ОБЛАЧНЫЙ БЭКАП -->
+      <div id="tab_github" class="tab-view hidden">
+        <div class="section-card">
+          <div class="section-title">🐙 Связка GitHub + Telegram</div>
+
+          <div id="ghConnectedBox" class="gh-preview">
+            <img id="ghTabAvatar" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GH" />
+            <div style="flex: 1;">
+              <div id="ghTabName" style="font-weight: 700; font-size: 14px;">Не привязан</div>
+              <div id="ghTabSub" style="font-size: 11px; color: var(--muted);">Укажите логин GitHub ниже</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">GitHub Username для синхронизации</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="ghTabUsernameInput" class="input" placeholder="Mister100M" />
+              <button class="btn btn-gh" style="width: auto; padding: 0 14px;" onclick="linkGitHubFromTab()">Привязать</button>
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 16px 0;" />
+
+          <div class="section-title" style="font-size: 14px;">☁️ Бэкап кошелька в GitHub Gist</div>
+          <p style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">
+            Сохраняет баланс, историю транзакций и платежные ссылки в ваш приватный GitHub Gist.
+          </p>
+
+          <div class="field-group">
+            <label class="field-label">GitHub Personal Access Token (scope: gist)</label>
+            <input type="password" id="ghTokenInput" class="input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+          </div>
+
+          <button class="btn btn-gh" onclick="backupToGitHubGist()">
+            ☁️ Сохранить резервную копию в GitHub
+          </button>
+          <div id="gistResultBox" class="link-box hidden" style="margin-top: 10px; font-size: 11px;"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+  <nav id="bottomNav" class="bottom-nav hidden">
+    <button class="nav-btn active" onclick="switchTab('home', this)">
+      <span class="ico">💳</span>
+      <span>Карта</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('links', this)">
+      <span class="ico">🔗</span>
+      <span>Ссылки</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('intl', this)">
+      <span class="ico">🌍</span>
+      <span>Страны</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('services', this)">
+      <span class="ico">⚡</span>
+      <span>Сервисы</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('github', this)">
+      <span class="ico">🐙</span>
+      <span>GitHub</span>
+    </button>
+  </nav>
+
+  <script>
+    const BOT_TOKEN = "9180632208:AAGkT-jGUXAQRL71ywKd7PGDqgOssWHnzds";
+    const BOT_USERNAME = "gexinside_bot";
+    const PHP_MAIL_ENDPOINT = "https://tytydmdk.xsph.ru/send_code.php";
+
+    let state = {
+      isAuthenticated: false,
+      authMethod: "gh_tg",
+      generatedCode: null,
+      user: {
+        name: "TIMOFEI TITOV",
+        tgId: "",
+        email: "",
+        ghLogin: "",
+        ghAvatar: "",
+        ghRepos: 0
+      },
+      balanceRub: 125450.00,
+      selectedService: "Telegram Premium",
+      transactions: [
+        { title: "Синхронизация GitHub + TG", sub: "Бонус разработчика GEX INSIDE", amount: 5000, type: "plus" },
+        { title: "Telegram Premium", sub: "Оплата сервисов", amount: 299, type: "minus" }
+      ]
+    };
+
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+          const u = tg.initDataUnsafe.user;
+          document.getElementById("tgChatIdInput").value = u.id;
+          document.getElementById("boxBankTgIdInput").value = u.id;
+          state.user.tgId = String(u.id);
+          const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ").toUpperCase();
+          if (fullName) state.user.name = fullName;
+        }
+      }
+
+      const saved = localStorage.getItem("gex_bank_gh_tg_state");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.isAuthenticated) {
+            state = { ...state, ...parsed };
+            enterApp();
+          }
+        } catch (e) {}
+      }
+
+      generateBankDeepLink();
+      updateIntlCalculation();
+    });
+
+    function saveState() {
+      localStorage.setItem("gex_bank_gh_tg_state", JSON.stringify(state));
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 3200);
+    }
+
+    // ==========================================
+    // GITHUB API: ПРОВЕРКА ПРОФИЛЯ ПРИ РЕГИСТРАЦИИ
+    // ==========================================
+    async function fetchGitHubProfile(customUsername) {
+      const username = (customUsername || document.getElementById("ghUsernameInput").value).trim();
+      if (!username) return null;
+
+      try {
+        const res = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`);
+        if (!res.ok) {
+          showToast("⚠️ Пользователь GitHub не найден");
+          document.getElementById("ghProfilePreview").classList.add("hidden");
+          return null;
+        }
+        const data = await res.json();
+        state.user.ghLogin = data.login;
+        state.user.ghAvatar = data.avatar_url;
+        state.user.ghRepos = data.public_repos || 0;
+        if (data.name) state.user.name = data.name.toUpperCase();
+
+        document.getElementById("ghAvatarImg").src = data.avatar_url;
+        document.getElementById("ghDisplayName").textContent = data.name || data.login;
+        document.getElementById("ghMetaInfo").textContent = `@${data.login} • ${data.public_repos} репо`;
+        document.getElementById("ghProfilePreview").classList.remove("hidden");
+        return data;
+      } catch (e) {
+        showToast("Ошибка подключения к GitHub API");
+        return null;
+      }
+    }
+
+    // ==========================================
+    // АВТОРИЗАЦИЯ И ОТПРАВКА КОДА ОТ @gexinside_bot
+    // ==========================================
+    function switchAuthMethod(method, btn) {
+      state.authMethod = method;
+      document.querySelectorAll(".auth-tab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      document.getElementById("authMethod_gh_tg").classList.add("hidden");
+      document.getElementById("authMethod_boxbank").classList.add("hidden");
+      document.getElementById("authMethod_email").classList.add("hidden");
+      document.getElementById("authMethod_" + method).classList.remove("hidden");
+    }
+
+    async function sendTelegramBotCode(chatId, code, contextLabel) {
+      const text =
+        `🔐 <b>GEX BANK • Авторизация</b>\n\n` +
+        `Способ: <b>${contextLabel}</b>\n` +
+        `Ваш код подтверждения: <code>${code}</code>\n\n` +
+        `Введите этот код в мини-приложении GEX BANK.`;
+
+      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: text,
+          parse_mode: "HTML"
+        })
+      });
+      return await response.json();
+    }
+
+    async function requestVerificationCode() {
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      state.generatedCode = code;
+
+      const btn = document.getElementById("sendCodeBtn");
+      btn.disabled = true;
+      btn.textContent = "Проверка и отправка...";
+
+      try {
+        if (state.authMethod === "gh_tg") {
+          const ghUser = document.getElementById("ghUsernameInput").value.trim();
+          const chatId = document.getElementById("tgChatIdInput").value.trim();
+
+          if (!chatId) {
+            showToast("Укажите ваш Telegram ID!");
+            return;
+          }
+          if (ghUser) {
+            await fetchGitHubProfile(ghUser);
+          }
+
+          state.user.tgId = chatId;
+          const label = state.user.ghLogin ? `GitHub (@${state.user.ghLogin}) + Telegram` : `Telegram ID ${chatId}`;
+          const res = await sendTelegramBotCode(chatId, code, label);
+
+          if (res.ok) {
+            showToast(`✅ Код отправлен от @${BOT_USERNAME}!`);
+            document.getElementById("verifyCodeBox").classList.remove("hidden");
+          } else {
+            showToast(`⚠️ Напишите /start боту @${BOT_USERNAME} и попробуйте снова`);
+          }
+        }
+        else if (state.authMethod === "boxbank") {
+          const boxEmail = document.getElementById("boxBankEmailInput").value.trim();
+          const tgId = document.getElementById("boxBankTgIdInput").value.trim();
+          if (!boxEmail || !tgId) {
+            showToast("Заполните почту Box Bank и Telegram ID!");
+            return;
+          }
+          state.user.email = boxEmail;
+          state.user.tgId = tgId;
+          const res = await sendTelegramBotCode(tgId, code, `Box Bank (${boxEmail})`);
+          if (res.ok) {
+            showToast(`📦 Код синхронизации Box Bank отправлен в TG!`);
+            document.getElementById("verifyCodeBox").classList.remove("hidden");
+          } else {
+            showToast(`⚠️ Нажмите /start в @${BOT_USERNAME}`);
+          }
+        }
+        else if (state.authMethod === "email") {
+          const email = document.getElementById("directEmailInput").value.trim();
+          if (!email || !email.includes("@")) {
+            showToast("Введите корректный Email!");
+            return;
+          }
+          state.user.email = email;
+          const formData = new FormData();
+          formData.append("email", email);
+          formData.append("code", code);
+
+          await fetch(PHP_MAIL_ENDPOINT, {
+            method: "POST",
+            body: formData,
+            mode: "no-cors"
+          });
+
+          showToast(`✉️ Код отправлен на ${email}`);
+          document.getElementById("verifyCodeBox").classList.remove("hidden");
+        }
+      } catch (e) {
+        showToast("Ошибка сети при отправке");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Отправить код повторно";
+      }
+    }
+
+    function confirmVerificationCode() {
+      const entered = document.getElementById("otpCodeInput").value.trim();
+      if (entered === state.generatedCode) {
+        state.isAuthenticated = true;
+        saveState();
+        showToast("🎉 Вход выполнен!");
+        enterApp();
+      } else {
+        showToast("❌ Неверный код подтверждения");
+      }
+    }
+
+    function enterApp() {
+      document.getElementById("authSection").classList.add("hidden");
+      document.getElementById("appSection").classList.remove("hidden");
+      document.getElementById("bottomNav").classList.remove("hidden");
+
+      const badge = document.getElementById("headerUserBadge");
+      const badgeText = document.getElementById("headerUserText");
+
+      if (state.user.ghLogin) {
+        badgeText.textContent = `@${state.user.ghLogin}`;
+        document.getElementById("cardGhBadge").textContent = `GH: @${state.user.ghLogin}`;
+        if (state.user.ghAvatar && !badge.querySelector("img")) {
+          const img = document.createElement("img");
+          img.src = state.user.ghAvatar;
+          badge.prepend(img);
+        }
+      } else {
+        badgeText.textContent = state.user.tgId ? `ID: ${state.user.tgId}` : state.user.name;
+      }
+
+      document.getElementById("cardHolderDisplay").textContent = state.user.name;
+      updateGitHubTabUI();
+      renderBalances();
+      renderTransactions();
+    }
+
+    function logoutConfirm() {
+      if (!state.isAuthenticated) return;
+      if (confirm("Выйти из аккаунта GEX BANK?")) {
+        localStorage.removeItem("gex_bank_gh_tg_state");
+        location.reload();
+      }
+    }
+
+    // ==========================================
+    // НАВИГАЦИЯ И БАЛАНС
+    // ==========================================
+    function switchTab(tabName, navBtn) {
+      document.querySelectorAll(".tab-view").forEach(v => v.classList.add("hidden"));
+      document.getElementById("tab_" + tabName).classList.remove("hidden");
+
+      if (navBtn) {
+        document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+        navBtn.classList.add("active");
+      }
+    }
+
+    function renderBalances() {
+      const rub = state.balanceRub;
+      document.getElementById("mainBalanceDisplay").textContent =
+        rub.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₽";
+      document.getElementById("eurBalanceDisplay").textContent = "€ " + (rub / 103).toFixed(2);
+      document.getElementById("usdBalanceDisplay").textContent = "$ " + (rub / 95).toFixed(2);
+      document.getElementById("kztBalanceDisplay").textContent = "₸ " + Math.round(rub * 5.14).toLocaleString("ru-RU");
+    }
+
+    function addTransaction(title, sub, amount, type) {
+      state.transactions.unshift({ title, sub, amount, type });
+      saveState();
+      renderBalances();
+      renderTransactions();
+    }
+
+    function renderTransactions() {
+      const list = document.getElementById("txHistoryList");
+      list.innerHTML = state.transactions.map(tx => `
+        <div class="tx-item">
+          <div>
+            <div class="tx-title">${tx.title}</div>
+            <div class="tx-sub">${tx.sub}</div>
+          </div>
+          <div class="tx-amount ${tx.type}">
+            ${tx.type === "plus" ? "+" : "-"}${Number(tx.amount).toLocaleString("ru-RU")} ₽
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function topUpDemo() {
+      state.balanceRub += 10000;
+      addTransaction("Пополнение карты GEX", "СБП мгновенно", 10000, "plus");
+      showToast("✅ Баланс пополнен на 10 000 ₽");
+    }
+
+    // ==========================================
+    // УНИКАЛЬНЫЕ ССЫЛКИ ДЛЯ КАЖДОГО БАНКА
+    // ==========================================
+    function generateBankDeepLink() {
+      const bank = document.getElementById("linkBankSelect").value;
+      const phone = document.getElementById("linkPhoneInput").value.trim().replace(/\s+/g, "");
+      const amount = document.getElementById("linkAmountInput").value.trim() || "0";
+      const curr = document.getElementById("linkCurrencyInput").value;
+
+      const uniqueLink = `${bank}/${phone}/${curr}=${amount}/`;
+      document.getElementById("generatedLinkOutput").textContent = uniqueLink;
+      return uniqueLink;
+    }
+
+    function copyGeneratedLink() {
+      const link = generateBankDeepLink();
+      navigator.clipboard.writeText(link).then(() => showToast("📋 Скопировано: " + link));
+    }
+
+    function shareGeneratedLink() {
+      const link = generateBankDeepLink();
+      const tgShareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("Оплата через GEX BANK: " + link)}`;
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(tgShareUrl);
+      else window.open(tgShareUrl, "_blank");
+    }
+
+    function executeLinkPayment() {
+      const link = generateBankDeepLink();
+      const amount = parseFloat(document.getElementById("linkAmountInput").value) || 0;
+      const curr = document.getElementById("linkCurrencyInput").value;
+      const ratesToRub = { rub: 1, eur: 103, usd: 95, kzt: 0.194 };
+      const rubTotal = amount * (ratesToRub[curr] || 1);
+
+      if (rubTotal <= 0 || rubTotal > state.balanceRub) {
+        showToast("❌ Недостаточно средств");
+        return;
+      }
+
+      state.balanceRub -= rubTotal;
+      addTransaction("Перевод по ссылке", link, Math.round(rubTotal), "minus");
+      showToast(`✅ Оплачено: ${link}`);
+      switchTab("home", document.querySelectorAll(".nav-btn")[0]);
+    }
+
+    // ==========================================
+    // ПЕРЕВОДЫ МЕЖДУ СТРАНАМИ
+    // ==========================================
+    function updateIntlCalculation() {
+      const select = document.getElementById("intlCountrySelect");
+      const opt = select.options[select.selectedIndex];
+      const curr = opt.getAttribute("data-curr");
+      const rate = parseFloat(opt.getAttribute("data-rate"));
+      const rubAmount = parseFloat(document.getElementById("intlRubAmount").value) || 0;
+      document.getElementById("intlConvertedResult").textContent = `${(rubAmount / rate).toFixed(2)} ${curr}`;
+    }
+
+    function submitIntlTransfer() {
+      const select = document.getElementById("intlCountrySelect");
+      const opt = select.options[select.selectedIndex];
+      const countryName = opt.text.split("(")[0].trim();
+      const recipient = document.getElementById("intlRecipientInput").value.trim();
+      const rubAmount = parseFloat(document.getElementById("intlRubAmount").value) || 0;
+      const converted = document.getElementById("intlConvertedResult").textContent;
+
+      if (!recipient) {
+        showToast("Введите реквизиты получателя");
+        return;
+      }
+      if (rubAmount <= 0 || rubAmount > state.balanceRub) {
+        showToast("❌ Недостаточно средств");
+        return;
+      }
+
+      state.balanceRub -= rubAmount;
+      addTransaction(`Перевод (${countryName})`, `${converted} → ${recipient}`, rubAmount, "minus");
+      showToast(`🌍 Перевод ${converted} отправлен!`);
+      switchTab("home", document.querySelectorAll(".nav-btn")[0]);
+    }
+
+    // ==========================================
+    // ОПЛАТА СЕРВИСОВ
+    // ==========================================
+    function selectService(name, defaultPrice, cardEl) {
+      state.selectedService = name;
+      document.querySelectorAll(".service-card").forEach(c => c.classList.remove("selected"));
+      cardEl.classList.add("selected");
+      document.getElementById("serviceAmountInput").value = defaultPrice;
+    }
+
+    function payService() {
+      const account = document.getElementById("serviceAccountInput").value.trim();
+      const amount = parseFloat(document.getElementById("serviceAmountInput").value) || 0;
+
+      if (!account) {
+        showToast("Укажите логин или @username");
+        return;
+      }
+      if (amount <= 0 || amount > state.balanceRub) {
+        showToast("❌ Недостаточно средств");
+        return;
+      }
+
+      state.balanceRub -= amount;
+      addTransaction(state.selectedService, `Аккаунт: ${account}`, amount, "minus");
+      showToast(`⚡ Оплачено: ${state.selectedService}`);
+      switchTab("home", document.querySelectorAll(".nav-btn")[0]);
+    }
+
+    // ==========================================
+    // ВКЛАДКА GITHUB + БЭКАП В GIST
+    // ==========================================
+    function updateGitHubTabUI() {
+      if (state.user.ghLogin) {
+        document.getElementById("ghTabName").textContent = `${state.user.name} (@${state.user.ghLogin})`;
+        document.getElementById("ghTabSub").textContent = `Репозиториев: ${state.user.ghRepos} • Связан с TG ${state.user.tgId}`;
+        if (state.user.ghAvatar) document.getElementById("ghTabAvatar").src = state.user.ghAvatar;
+        document.getElementById("ghTabUsernameInput").value = state.user.ghLogin;
+      }
+    }
+
+    async function linkGitHubFromTab() {
+      const login = document.getElementById("ghTabUsernameInput").value.trim();
+      const data = await fetchGitHubProfile(login);
+      if (data) {
+        saveState();
+        enterApp();
+        showToast(`🐙 GitHub @${data.login} привязан!`);
+      }
+    }
+
+    async function backupToGitHubGist() {
+      const token = document.getElementById("ghTokenInput").value.trim();
+      if (!token) {
+        showToast("Введите GitHub Token (с правом gist)");
+        return;
+      }
+
+      const payload = {
+        description: "GEX BANK Wallet Backup (GitHub + Telegram)",
+        public: false,
+        files: {
+          "gex_bank_backup.json": {
+            content: JSON.stringify(state, null, 2)
+          }
+        }
+      };
+
+      try {
+        const res = await fetch("https://api.github.com/gists", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.html_url) {
+          const box = document.getElementById("gistResultBox");
+          box.textContent = "✅ Бэкап создан: " + data.html_url;
+          box.classList.remove("hidden");
+          showToast("☁️ Резервная копия сохранена в GitHub Gist!");
+        } else {
+          showToast("❌ Ошибка GitHub API: проверьте права токена (gist)");
+        }
+      } catch (e) {
+        showToast("Ошибка сети при обращении к GitHub");
+      }
+    }
+  </script>
+</body>
+</html>
